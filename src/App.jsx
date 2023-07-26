@@ -9,7 +9,7 @@ import SidebarWithHeader from './components/SidebarWithHeader';
 function App() {
   return (
     <>
-      <SidebarWithHeader />
+      {/* <SidebarWithHeader /> */}
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/signup' element={<Signup />} />

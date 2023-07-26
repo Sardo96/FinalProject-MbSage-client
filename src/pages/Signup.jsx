@@ -15,10 +15,44 @@ import {
   Link
 } from '@chakra-ui/react';
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { signup } from '../api/auth.api';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [errorMessage, setErrorMessage] = useState(undefined);
+
+  const navigate = useNavigate();
+
+  const handleEmail = e => {
+    setEmail(e.target.value);
+  };
+
+  const handlePassword = e => {
+    setPassword(e.target.value);
+  };
+
+  const handleName = e => {
+    setName(e.target.value);
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+
+    try {
+      const user = { email, password, name };
+      await signup(user);
+      navigate('/login');
+    } catch (error) {
+      console.log('Error signing up', error);
+      const errorDescription = error.response.data.message;
+      setErrorMessage(errorDescription);
+    }
+  };
 
   return (
     <Flex
