@@ -62,6 +62,8 @@ const Signup = () => {
 
   const handleGender = e => {
     setGender(e.target.value);
+
+    console.log('gender', gender);
   };
 
   const handlePhoto = e => {
@@ -164,7 +166,8 @@ const Signup = () => {
               </FormControl>
               <FormControl id='gender' isRequired>
                 <FormLabel>Gender</FormLabel>
-                <Select onChange={handleGender}>
+                <Select value={gender} onChange={handleGender}>
+                  <option value=''>Select Gender</option>
                   <option value='male'>Male</option>
                   <option value='female'>Female</option>
                   <option value='other'>Other</option>

@@ -37,17 +37,15 @@ const Login = () => {
 
     try {
       const user = { email, password };
-      const response = await toast.promise(login(user), {
-        pending: 'We are hard at work, please wait!',
-        success: 'Welcome!',
-        error: 'Something went wrong, try again later'
-      });
+      const response = await login(user);
 
-      storeToken(response.data.authToken);
+      if (response.data && response.data.authToken) {
+        storeToken(response.data.authToken);
 
-      authenticateUser();
+        authenticateUser();
 
-      navigate('/');
+        navigate('/');
+      }
     } catch (error) {
       console.log('Error login in', error);
       const errorDescription = error.response.data.message;

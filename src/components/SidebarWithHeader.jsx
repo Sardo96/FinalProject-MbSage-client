@@ -197,7 +197,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
                 <Box display={{ base: 'none', md: 'flex' }}>
                   <FiChevronDown />
                 </Box>
-              </HStack>
+              </HStack> 
             </MenuButton>
             <MenuList
               bg={useColorModeValue('white', 'gray.900')}
