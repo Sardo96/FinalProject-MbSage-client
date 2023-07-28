@@ -12,7 +12,9 @@ import {
   Heading,
   Text,
   useColorModeValue,
-  Link
+  Link,
+  Select,
+  Textarea
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -23,7 +25,13 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [birthday, setBirthday] = useState('');
+  const [phone, setPhone] = useState('');
+  const [gender, setGender] = useState('');
+  const [photo, setPhoto] = useState(null);
+  const [allergies, setAllergies] = useState('');
   const [errorMessage, setErrorMessage] = useState(undefined);
 
   const navigate = useNavigate();
@@ -36,15 +44,49 @@ const Signup = () => {
     setPassword(e.target.value);
   };
 
-  const handleName = e => {
-    setName(e.target.value);
+  const handleFirstName = e => {
+    setFirstName(e.target.value);
+  };
+
+  const handleLastName = e => {
+    setLastName(e.target.value);
+  };
+
+  const handleBirthday = e => {
+    setBirthday(e.target.value);
+  };
+
+  const handlePhone = e => {
+    setPhone(e.target.value);
+  };
+
+  const handleGender = e => {
+    setGender(e.target.value);
+  };
+
+  const handlePhoto = e => {
+    setPhoto(e.target.files[0]);
+  };
+
+  const handleAllergies = e => {
+    setAllergies(e.target.value);
   };
 
   const handleSubmit = async e => {
     e.preventDefault();
 
     try {
-      const user = { email, password, name };
+      const user = {
+        email,
+        password,
+        firstName,
+        lastName,
+        birthday,
+        phone,
+        gender,
+        photo,
+        allergies
+      };
       await signup(user);
       navigate('/login');
     } catch (error) {
@@ -79,13 +121,13 @@ const Signup = () => {
                 <Box>
                   <FormControl id='firstName' isRequired>
                     <FormLabel>First Name</FormLabel>
-                    <Input type='text' />
+                    <Input type='text' onChange={handleFirstName} />
                   </FormControl>
                 </Box>
                 <Box>
                   <FormControl id='lastName'>
                     <FormLabel>Last Name</FormLabel>
-                    <Input type='text' />
+                    <Input type='text' onChange={handleLastName} />
                   </FormControl>
                 </Box>
               </HStack>
@@ -111,6 +153,30 @@ const Signup = () => {
                     </Button>
                   </InputRightElement>
                 </InputGroup>
+              </FormControl>
+              <FormControl id='birthday' isRequired>
+                <FormLabel>Birthday</FormLabel>
+                <Input type='date' onChange={handleBirthday} />
+              </FormControl>
+              <FormControl id='phone' isRequired>
+                <FormLabel>Phone</FormLabel>
+                <Input type='tel' onChange={handlePhone} />
+              </FormControl>
+              <FormControl id='gender' isRequired>
+                <FormLabel>Gender</FormLabel>
+                <Select onChange={handleGender}>
+                  <option value='male'>Male</option>
+                  <option value='female'>Female</option>
+                  <option value='other'>Other</option>
+                </Select>
+              </FormControl>
+              <FormControl id='photo' isRequired>
+                <FormLabel>Photo</FormLabel>
+                <Input type='file' onChange={handlePhoto} />
+              </FormControl>
+              <FormControl id='allergies' isRequired>
+                <FormLabel>Allergies</FormLabel>
+                <Textarea onChange={handleAllergies} />
               </FormControl>
               <Stack spacing={10} pt={2}>
                 <Button
