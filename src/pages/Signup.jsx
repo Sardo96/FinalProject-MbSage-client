@@ -1,25 +1,28 @@
-import {
-  Flex,
-  Box,
-  FormControl,
-  FormLabel,
-  Input,
-  InputGroup,
-  HStack,
-  InputRightElement,
-  Stack,
-  Button,
-  Heading,
-  Text,
-  useColorModeValue,
-  Link,
-  Select,
-  Textarea
-} from '@chakra-ui/react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { signup } from '../api/auth.api';
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { upload } from '../api/massage.api';
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Link,
+  IconButton,
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  FormHelperText,
+  RadioGroup,
+  Radio,
+  FormControlLabel,
+  FormLabel,
+  Avatar,
+  Input,
+  Box
+} from '@mui/material';
+import { Visibility, VisibilityOff, PhotoCamera } from '@mui/icons-material';
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -30,7 +33,7 @@ const Signup = () => {
   const [birthday, setBirthday] = useState('');
   const [phone, setPhone] = useState('');
   const [gender, setGender] = useState('');
-  const [photo, setPhoto] = useState(null);
+  const [photo, setPhoto] = useState();
   const [allergies, setAllergies] = useState('');
   const [errorMessage, setErrorMessage] = useState(undefined);
 
@@ -62,12 +65,12 @@ const Signup = () => {
 
   const handleGender = e => {
     setGender(e.target.value);
-
-    console.log('gender', gender);
   };
 
   const handlePhoto = e => {
-    setPhoto(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    console.log('Selected file:', selectedFile);
+    setPhoto(selectedFile);
   };
 
   const handleAllergies = e => {
@@ -86,11 +89,18 @@ const Signup = () => {
         birthday,
         phone,
         gender,
-        photo,
         allergies
       };
+
+      if (photo) {
+        const uploadData = new FormData();
+        uploadData.append('file', photo);
+        const response = await upload(uploadData);
+        user.photo = response.data.fileUrl;
+      }
+
       await signup(user);
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       console.log('Error signing up', error);
       const errorDescription = error.response.data.message;
@@ -99,112 +109,138 @@ const Signup = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Flex
-        minH={'100vh'}
-        align={'center'}
-        justify={'center'}
-        bg={useColorModeValue('gray.50', 'gray.800')}
-      >
-        <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
-          <Stack align={'center'}>
-            <Heading fontSize={'4xl'} textAlign={'center'}>
-              Sign up
-            </Heading>
-          </Stack>
-          <Box
-            rounded={'lg'}
-            bg={useColorModeValue('white', 'gray.700')}
-            boxShadow={'lg'}
-            p={8}
-          >
-            <Stack spacing={4}>
-              <HStack>
-                <Box>
-                  <FormControl id='firstName' isRequired>
-                    <FormLabel>First Name</FormLabel>
-                    <Input type='text' onChange={handleFirstName} />
-                  </FormControl>
-                </Box>
-                <Box>
-                  <FormControl id='lastName'>
-                    <FormLabel>Last Name</FormLabel>
-                    <Input type='text' onChange={handleLastName} />
-                  </FormControl>
-                </Box>
-              </HStack>
-              <FormControl id='email' isRequired>
-                <FormLabel>Email address</FormLabel>
-                <Input type='email' onChange={handleEmail} />
-              </FormControl>
-              <FormControl id='password' isRequired>
-                <FormLabel>Password</FormLabel>
-                <InputGroup>
-                  <Input
-                    type={showPassword ? 'text' : 'password'}
-                    onChange={handlePassword}
-                  />
-                  <InputRightElement h={'full'}>
-                    <Button
-                      variant={'ghost'}
-                      onClick={() =>
-                        setShowPassword(showPassword => !showPassword)
-                      }
-                    >
-                      {showPassword ? <ViewIcon /> : <ViewOffIcon />}
-                    </Button>
-                  </InputRightElement>
-                </InputGroup>
-              </FormControl>
-              <FormControl id='birthday' isRequired>
-                <FormLabel>Birthday</FormLabel>
-                <Input type='date' onChange={handleBirthday} />
-              </FormControl>
-              <FormControl id='phone' isRequired>
-                <FormLabel>Phone</FormLabel>
-                <Input type='tel' onChange={handlePhone} />
-              </FormControl>
-              <FormControl id='gender' isRequired>
-                <FormLabel>Gender</FormLabel>
-                <Select value={gender} onChange={handleGender}>
-                  <option value=''>Select Gender</option>
-                  <option value='male'>Male</option>
-                  <option value='female'>Female</option>
-                  <option value='other'>Other</option>
-                </Select>
-              </FormControl>
-              <FormControl id='photo' isRequired>
-                <FormLabel>Photo</FormLabel>
-                <Input type='file' onChange={handlePhoto} />
-              </FormControl>
-              <FormControl id='allergies' isRequired>
-                <FormLabel>Allergies</FormLabel>
-                <Textarea onChange={handleAllergies} />
-              </FormControl>
-              <Stack spacing={10} pt={2}>
-                <Button
-                  loadingText='Submitting'
-                  size='lg'
-                  bg={'blue.400'}
-                  color={'white'}
-                  _hover={{
-                    bg: 'blue.500'
-                  }}
-                  type='submit'
+    <Container maxWidth='xs'>
+      <Typography variant='h5' align='center' gutterBottom>
+        Sign Up
+      </Typography>
+      <form onSubmit={handleSubmit}>
+        <TextField
+          type='email'
+          label='Email'
+          variant='outlined'
+          fullWidth
+          margin='normal'
+          value={email}
+          onChange={handleEmail}
+        />
+        <FormControl fullWidth variant='outlined' margin='normal'>
+          <InputLabel htmlFor='password'>Password</InputLabel>
+          <OutlinedInput
+            id='password'
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={handlePassword}
+            endAdornment={
+              <InputAdornment position='end'>
+                <IconButton
+                  aria-label='toggle password visibility'
+                  onClick={() =>
+                    setShowPassword(prevShowPassword => !prevShowPassword)
+                  }
+                  edge='end'
                 >
-                  Sign up
-                </Button>
-              </Stack>
-              <Stack pt={6}>
-                <Text align={'center'}>
-                  Already a user? <Link color={'blue.400'}>Login</Link>
-                </Text>
-              </Stack>
-            </Stack>
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            }
+            label='Password'
+          />
+          <FormHelperText error>{errorMessage}</FormHelperText>
+        </FormControl>
+        <TextField
+          label='First Name'
+          variant='outlined'
+          fullWidth
+          margin='normal'
+          value={firstName}
+          onChange={handleFirstName}
+        />
+        <TextField
+          label='Last Name'
+          variant='outlined'
+          fullWidth
+          margin='normal'
+          value={lastName}
+          onChange={handleLastName}
+        />
+        <TextField
+          type='date'
+          label='Birthday'
+          variant='outlined'
+          fullWidth
+          margin='normal'
+          value={birthday}
+          onChange={handleBirthday}
+          InputLabelProps={{
+            shrink: true
+          }}
+        />
+        <TextField
+          label='Phone'
+          variant='outlined'
+          fullWidth
+          margin='normal'
+          value={phone}
+          onChange={handlePhone}
+        />
+        <FormControl component='fieldset' fullWidth margin='normal'>
+          <FormLabel component='legend'>Gender</FormLabel>
+          <RadioGroup row value={gender} onChange={handleGender}>
+            <FormControlLabel value='male' control={<Radio />} label='Male' />
+            <FormControlLabel
+              value='female'
+              control={<Radio />}
+              label='Female'
+            />
+            <FormControlLabel value='other' control={<Radio />} label='Other' />
+          </RadioGroup>
+        </FormControl>
+        <input
+          accept='image/*'
+          style={{ display: 'none' }}
+          id='photo-upload'
+          type='file'
+          onChange={handlePhoto}
+        />
+        <label htmlFor='photo-upload'>
+          <Box
+            display='flex'
+            flexDirection='column'
+            alignItems='center'
+            mt={2}
+            mb={3}
+          >
+            <Avatar
+              src={photo ? URL.createObjectURL(photo) : undefined}
+              sx={{ width: 100, height: 100 }}
+            />
+            <IconButton component='span' size='small'>
+              <PhotoCamera />
+            </IconButton>
+            <Typography variant='body2'>Upload Photo</Typography>
           </Box>
-        </Stack>
-      </Flex>
-    </form>
+        </label>
+        <TextField
+          label='Allergies'
+          variant='outlined'
+          fullWidth
+          margin='normal'
+          value={allergies}
+          onChange={handleAllergies}
+          multiline
+          rows={3}
+        />
+        <Button type='submit' variant='contained' fullWidth sx={{ mt: 3 }}>
+          Sign Up
+        </Button>
+      </form>
+      <Typography variant='body2' align='center' mt={2}>
+        Already have an account?{' '}
+        <Link component={RouterLink} to='/login'>
+          Log In
+        </Link>
+      </Typography>
+    </Container>
   );
 };
 

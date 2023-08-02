@@ -13,7 +13,6 @@ const AuthProviderWrapper = props => {
   };
 
   const authenticateUser = async () => {
-    //get the token from localStorage
     const storedToken = localStorage.getItem('authToken');
 
     if (storedToken) {
