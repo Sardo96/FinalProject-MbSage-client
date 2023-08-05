@@ -6,6 +6,7 @@ const AuthContext = createContext();
 const AuthProviderWrapper = props => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const storeToken = token => {
@@ -20,14 +21,16 @@ const AuthProviderWrapper = props => {
         const response = await verify(storedToken);
         const user = response.data;
         setUser(user);
+        setUserRole(user.role);
         setIsLoggedIn(true);
       } catch (error) {
         console.log('An error occurred authenticating the user', error);
-
+        setUserRole(null);
         setUser(null);
         setIsLoggedIn(false);
       }
     } else {
+      setUserRole(null);
       setUser(null);
       setIsLoggedIn(false);
     }
@@ -45,7 +48,7 @@ const AuthProviderWrapper = props => {
 
   const logOutUser = () => {
     removeToken();
-
+    setUserRole(null);
     authenticateUser();
   };
 
@@ -55,6 +58,7 @@ const AuthProviderWrapper = props => {
         isLoading,
         isLoggedIn,
         user,
+        userRole,
         storeToken,
         authenticateUser,
         logOutUser

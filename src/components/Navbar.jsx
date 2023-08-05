@@ -19,9 +19,11 @@ const pages = ['Massages', 'About', 'Contacts'];
 const settings = ['Profile', 'My Bookings', 'My Reviews', 'Logout'];
 
 const Navbar = () => {
-  const { isLoggedIn, logOutUser } = useContext(AuthContext);
+  const { isLoggedIn, logOutUser, user } = useContext(AuthContext);
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
+
+  const userPhoto = user?.photo;
 
   const handleOpenNavMenu = event => {
     setAnchorElNav(event.currentTarget);
@@ -40,7 +42,7 @@ const Navbar = () => {
   };
 
   return (
-    <AppBar position='static'>
+    <AppBar position='static' sx={{ background: '#f2aa5c' }}>
       <Container maxWidth='xl'>
         <Toolbar disableGutters>
           <Avatar
@@ -64,7 +66,7 @@ const Navbar = () => {
               fontFamily: 'monospace',
               fontWeight: 700,
               letterSpacing: '.3rem',
-              color: 'inherit',
+              color: 'black',
               textDecoration: 'none'
             }}
           >
@@ -78,7 +80,7 @@ const Navbar = () => {
               aria-controls='menu-appbar'
               aria-haspopup='true'
               onClick={handleOpenNavMenu}
-              color='inherit'
+              color='black'
             >
               <MenuIcon />
             </IconButton>
@@ -119,7 +121,7 @@ const Navbar = () => {
             variant='h5'
             noWrap
             component='a'
-            href=''
+            href='/'
             sx={{
               mr: 2,
               display: { xs: 'flex', md: 'none' },
@@ -127,7 +129,7 @@ const Navbar = () => {
               fontFamily: 'monospace',
               fontWeight: 700,
               letterSpacing: '.3rem',
-              color: 'inherit',
+              color: 'black',
               textDecoration: 'none'
             }}
           >
@@ -143,7 +145,7 @@ const Navbar = () => {
                 onClick={handleCloseNavMenu}
                 sx={{
                   my: 2,
-                  color: 'white',
+                  color: 'black',
                   display: 'block',
                   '&.active': { fontWeight: 'bold' }
                 }}
@@ -160,7 +162,8 @@ const Navbar = () => {
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                     <Avatar
                       alt='Remy Sharp'
-                      src='/static/images/avatar/2.jpg'
+                      src={userPhoto}
+                      sx={{ width: 50, height: 50 }}
                     />
                   </IconButton>
                 </Tooltip>
@@ -182,7 +185,19 @@ const Navbar = () => {
                 >
                   {settings.map(setting => (
                     <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                      <Typography textAlign='center'>{setting}</Typography>
+                      <Typography textAlign='center'>
+                        {setting === 'Logout' ? (
+                          <NavLink to='/' onClick={logOutUser}>
+                            {setting}
+                          </NavLink>
+                        ) : (
+                          <NavLink
+                            to={`/${setting.toLowerCase().replace(/\s/g, '-')}`}
+                          >
+                            {setting}
+                          </NavLink>
+                        )}
+                      </Typography>
                     </MenuItem>
                   ))}
                 </Menu>
@@ -196,7 +211,7 @@ const Navbar = () => {
                   sx={{
                     my: 2,
                     mr: 2,
-                    color: 'white',
+                    color: 'black',
                     display: 'block',
                     '&.active': { fontWeight: 'bold' }
                   }}
@@ -209,7 +224,7 @@ const Navbar = () => {
                   onClick={handleCloseNavMenu}
                   sx={{
                     my: 2,
-                    color: 'white',
+                    color: 'black',
                     display: 'block',
                     '&.active': { fontWeight: 'bold' }
                   }}

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getMassage } from '../api/massage.api';
+import { useState, useEffect, useContext } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getMassage, deleteMassage } from '../api/massage.api';
 import {
   Typography,
   CardMedia,
@@ -15,7 +15,10 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import BookIcon from '@mui/icons-material/Book';
 import StarIcon from '@mui/icons-material/Star';
+import DangerousIcon from '@mui/icons-material/Dangerous';
 import ReviewForm from '../components/ReviewForm';
+import { AuthContext } from '../context/auth.context';
+import EditMassageForm from '../components/EditMassageForm';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -54,7 +57,8 @@ const useStyles = makeStyles(theme => ({
   ratingContainer: {
     display: 'flex',
     alignItems: 'center',
-    marginRight: theme.spacing(1)
+    marginRight: theme.spacing(1),
+    marginBottom: theme.spacing(3)
   },
   starIcon: {
     color: theme.palette.primary.contrastText
@@ -65,9 +69,12 @@ const MassageDetails = () => {
   const classes = useStyles();
   const [massage, setMassage] = useState(null);
   const [openReviewForm, setOpenReviewForm] = useState(false);
+  const [openEditForm, setOpenEditForm] = useState(false);
+  const { user, userRole } = useContext(AuthContext);
 
   const { id } = useParams();
   const navigate = useNavigate();
+  const userId = user ? user._id : null;
 
   const fetchMassage = async id => {
     try {
@@ -83,10 +90,38 @@ const MassageDetails = () => {
   }, [id]);
 
   const handleOpenReviewForm = () => {
-    setOpenReviewForm(true);
+    if (userId) {
+      setOpenReviewForm(true);
+    } else {
+      navigate('/login');
+    }
   };
 
-  // Close the review form dialog
+  const handleDeleteMassage = async () => {
+    if (userRole === 'admin') {
+      try {
+        await deleteMassage(id);
+        navigate('/massages');
+      } catch (error) {
+        console.log('Error deleting the massage', error);
+      }
+    } else {
+      navigate('/massages');
+    }
+  };
+
+  const handleOpenEditForm = () => {
+    if (userRole === 'admin') {
+      setOpenEditForm(true);
+    } else {
+      setOpenEditForm(false);
+    }
+  };
+
+  const handleCloseEditForm = () => {
+    setOpenEditForm(false);
+  };
+
   const handleCloseReviewForm = () => {
     setOpenReviewForm(false);
   };
@@ -134,7 +169,7 @@ const MassageDetails = () => {
               <AccessTimeIcon fontSize='small' /> {massage.duration} minutes
             </Typography>
             <Typography variant='body2'>
-              <AttachMoneyIcon fontSize='small' /> {massage.price} USD
+              <AttachMoneyIcon fontSize='small' /> {massage.price} EUR
             </Typography>
           </div>
           <CardActions>
@@ -156,10 +191,40 @@ const MassageDetails = () => {
             >
               Review
             </Button>
+            {userRole === 'admin' ? (
+              <>
+                <Button
+                  variant='contained'
+                  color='secondary'
+                  className={classes.actionButton}
+                  onClick={handleOpenEditForm}
+                >
+                  Edit Massage
+                </Button>
+                <Button
+                  variant='contained'
+                  color='warning'
+                  className={classes.actionButton}
+                  startIcon={<DangerousIcon />}
+                  onClick={handleDeleteMassage}
+                >
+                  Delete massage
+                </Button>
+              </>
+            ) : (
+              <></>
+            )}
           </CardActions>
           <ReviewForm
             open={openReviewForm}
             onClose={handleCloseReviewForm}
+            refreshMassage={fetchMassage}
+            massageId={id}
+            userId={userId}
+          />
+          <EditMassageForm
+            open={openEditForm}
+            onClose={handleCloseEditForm}
             refreshMassage={fetchMassage}
             massageId={id}
           />
@@ -170,7 +235,8 @@ const MassageDetails = () => {
             >
               <div className={classes.ratingContainer}>
                 <Typography variant='body2'>
-                  Average Rating: {renderStars(massage.averageRating)}
+                  Average Rating: <b>{massage.averageRating}</b>{' '}
+                  {renderStars(massage.averageRating)}
                 </Typography>
                 <Typography variant='body2'>
                   ({massage.totalReviews} reviews)
@@ -181,13 +247,10 @@ const MassageDetails = () => {
               <div>
                 {massage.reviews.map(review => (
                   <div key={review._id}>
-                    <Typography variant='body2'>
-                      {review.user.firstName}
-                    </Typography>
                     <Typography variant='body1'>{review.reviewText}</Typography>
                     <div className={classes.ratingContainer}>
                       <Typography variant='body2'>
-                        Rating: {renderStars(review.rating)}
+                        Rating:{renderStars(review.rating)}
                       </Typography>
                       <Typography variant='body2'>
                         {new Date(review.createdAt).toLocaleDateString(

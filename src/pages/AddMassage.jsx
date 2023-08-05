@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { TextField, Button } from '@mui/material';
+import { TextField, Button, Box, IconButton, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { addMassage, upload } from '../api/massage.api';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { PhotoCamera } from '@mui/icons-material';
 
 const useStyles = makeStyles(theme => ({
   form: {
@@ -25,8 +26,8 @@ const AddMassage = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    duration: null,
-    price: null
+    duration: 0,
+    price: 0
   });
 
   const navigate = useNavigate();
@@ -59,7 +60,6 @@ const AddMassage = () => {
       }
 
       await addMassage(newMassage);
-      toast.success('Massage added successfully!');
       navigate('/massages');
     } catch (error) {
       toast.error('Something went wrong, try again later.');
@@ -69,8 +69,8 @@ const AddMassage = () => {
     setFormData({
       title: '',
       description: '',
-      duration: null,
-      price: null
+      duration: 0,
+      price: 0
     });
     setImage();
   };
@@ -107,12 +107,27 @@ const AddMassage = () => {
         onChange={handleChange}
         required
       />
-      <TextField
-        label='Image URL'
-        name='image'
-        value={formData.image}
-        onChange={handleChange}
+      <input
+        accept='image/*'
+        style={{ display: 'none' }}
+        id='photo-upload'
+        type='file'
+        onChange={handleImage}
       />
+      <label htmlFor='photo-upload'>
+        <Box
+          display='flex'
+          flexDirection='column'
+          alignItems='center'
+          mt={2}
+          mb={3}
+        >
+          <IconButton component='span' size='small'>
+            <PhotoCamera />
+          </IconButton>
+          <Typography variant='body2'>Upload Image</Typography>
+        </Box>
+      </label>
       <Button
         type='submit'
         variant='contained'

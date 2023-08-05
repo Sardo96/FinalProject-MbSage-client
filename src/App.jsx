@@ -1,5 +1,5 @@
-import { useState, useContext } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { useState, useContext, useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -23,9 +23,24 @@ function App() {
   const { handleThemeChange: toggleColorMode, theme } =
     useContext(ColorModeContext);
   const colors = tokens(theme.palette.mode);
+  const { pathname } = useLocation();
+  const [background, setBackground] = useState(null);
+
+  useEffect(() => {
+    if (pathname === '/' || pathname === '/login' || pathname === '/signup') {
+      setBackground('/images/homebackground.jpeg');
+    } else {
+      setBackground('white');
+    }
+  }, [pathname]);
 
   return (
-    <div className='backgroundStyle'>
+    <div
+      className='backgroundStyle'
+      style={{
+        background: `url(${background}) center center/cover no-repeat`
+      }}
+    >
       <Navbar />
       <ThemeProvider theme={theme}>
         <div className='app'>

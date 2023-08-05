@@ -9,8 +9,6 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     justifyContent: 'center',
     height: '100vh',
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
     padding: theme.spacing(4),
     textAlign: 'center'
   },

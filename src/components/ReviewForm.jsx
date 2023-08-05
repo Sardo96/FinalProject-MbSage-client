@@ -12,7 +12,7 @@ import {
 import { addReview } from '../api/massage.api';
 import StarIcon from '@mui/icons-material/Star';
 
-const ReviewForm = ({ massageId, refreshMassage, open, onClose }) => {
+const ReviewForm = ({ userId, massageId, refreshMassage, open, onClose }) => {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
 
@@ -29,15 +29,17 @@ const ReviewForm = ({ massageId, refreshMassage, open, onClose }) => {
 
     try {
       const newReview = {
-        rating,
         reviewText,
-        massageId
+        rating,
+        massageId,
+        userId
       };
 
       await addReview(newReview);
 
       setRating(0);
       setReviewText('');
+      onClose();
       refreshMassage(massageId);
     } catch (error) {
       console.log('Error adding review', error);

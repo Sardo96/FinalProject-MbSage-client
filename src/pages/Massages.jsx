@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllMassages } from '../api/massage.api';
+import { AuthContext } from '../context/auth.context';
 import {
   Card,
   CardActionArea,
@@ -11,14 +12,25 @@ import {
   Button
 } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import EuroIcon from '@mui/icons-material/Euro';
 import StarIcon from '@mui/icons-material/Star';
 import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles(theme => ({
+  container: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    [theme.breakpoints.down('md')]: {
+      justifyContent: 'center'
+    }
+  },
   card: {
-    maxWidth: 300,
-    margin: theme.spacing(2)
+    width: 'calc(33% - 16px)',
+    margin: theme.spacing(2),
+    [theme.breakpoints.down('md')]: {
+      width: '100%'
+    }
   },
   media: {
     height: 200
@@ -39,6 +51,7 @@ const useStyles = makeStyles(theme => ({
 const Massages = () => {
   const classes = useStyles();
   const [massages, setMassages] = useState([]);
+  const { userRole } = useContext(AuthContext);
 
   const fetchMassages = async () => {
     try {
@@ -69,7 +82,7 @@ const Massages = () => {
   };
 
   return (
-    <div>
+    <div className={classes.container}>
       {massages.map(massage => (
         <Card key={massage._id} className={classes.card}>
           <CardActionArea component={Link} to={`/massages/${massage._id}`}>
@@ -86,12 +99,14 @@ const Massages = () => {
                 <AccessTimeIcon fontSize='small' /> {massage.duration} minutes
               </Typography>
               <Typography variant='body2' color='textSecondary' component='p'>
-                <AttachMoneyIcon fontSize='small' /> {massage.price} USD
+                <EuroIcon fontSize='small' />
+                {massage.price} EUR
               </Typography>
               <div className={classes.ratingContainer}>
                 {renderStars(massage.averageRating)}
                 <Typography variant='body2' color='textSecondary' component='p'>
-                  ({massage.totalRating} ratings)
+                  <b>{massage.averageRating}</b> ({massage.totalReviews}{' '}
+                  reviews)
                 </Typography>
               </div>
             </CardContent>
@@ -101,13 +116,22 @@ const Massages = () => {
               variant='contained'
               color='primary'
               component={Link}
-              to={`/massage/${massage._id}`}
+              to={`/massages/${massage._id}`}
             >
               See more details
             </Button>
           </CardActions>
         </Card>
       ))}
+      {userRole === 'admin' ? (
+        <Button variant='contained' href='/massages/new'>
+          Add new massage!
+        </Button>
+      ) : (
+        <Button variant='contained' disabled>
+          Add new massage!
+        </Button>
+      )}
     </div>
   );
 };

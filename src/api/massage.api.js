@@ -36,7 +36,7 @@ export const deleteMassage = id => {
 };
 
 export const addReview = review => {
-  return axios.post(`${baseURL}/review`, review);
+  return axios.post(`${baseURL}/reviews`, review);
 };
 
 export const upload = uploadData => {
